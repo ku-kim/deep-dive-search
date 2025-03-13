@@ -25,7 +25,11 @@ src/
 1. **역색인(Inverted Index)**: 단어를 키로, 해당 단어가 등장하는 문서 ID 목록을 값으로 하는 자료구조
 2. **TF-IDF 알고리즘**: 문서 내 단어의 중요도를 계산하는 알고리즘
 3. **문서(Document)**: 검색 대상이 되는 문서 객체
-4. **검색 엔진(SearchEngine)**: 위 구성 요소들을 활용하여 검색 기능을 제공하는 메인 클래스
+4. **토크나이저(Tokenizer)**: 텍스트를 단어로 분리하는 인터페이스와 구현체
+   - **SimpleTokenizer**: 공백 기반 기본 토크나이저
+   - **KoreanTokenizer**: 한국어 형태소 분석을 위한 토크나이저
+   - **TestTokenizer**: 테스트용 토크나이저
+5. **검색 엔진(SearchEngine)**: 위 구성 요소들을 활용하여 검색 기능을 제공하는 메인 클래스
 
 ## 문서화
 
@@ -34,6 +38,7 @@ src/
 - [검색 엔진 개요](search-engine.md)
 - [역색인 구현](inverted-index.md)
 - [TF-IDF 알고리즘](tf-idf.md)
+- [토크나이저 구현](tokenizer.md)
 
 ## 테스트
 
@@ -46,13 +51,17 @@ src/
 ## 사용 예시
 
 ```kotlin
-// 역색인 생성
-val invertedIndex = InvertedIndex()
+// 한국어 토크나이저 생성
+val koreanTokenizer = KoreanTokenizer()
+
+// 역색인 생성 (토크나이저 지정)
+val invertedIndex = InvertedIndex(koreanTokenizer)
 
 // 문서 추가
 invertedIndex.addDocument("doc1", "검색 엔진은 정보 검색 시스템입니다")
 invertedIndex.addDocument("doc2", "검색 엔진 개발을 위한 알고리즘 공부")
 invertedIndex.addDocument("doc3", "정보 시스템과 알고리즘의 관계")
+invertedIndex.addDocument("doc4", "검색 시스템은 정보를 찾는 도구입니다")
 
 // TF-IDF 객체 생성
 val tfIdf = TfIdf()
@@ -68,11 +77,22 @@ println("검색 결과:")
 rankedDocuments.forEach { (docId, score) ->
     println("$docId: $score")
 }
+
+// 문서 내 단어 중요도 확인
+val termImportance = tfIdf.getTermImportance(invertedIndex, "doc1")
+println("\n문서 'doc1'의 단어 중요도:")
+termImportance.forEach { (term, score) ->
+    println("$term: $score")
+}
 ```
 
 ## 향후 개선 방향
 
-1. **형태소 분석기 통합**: 한국어 문서 처리를 위한 형태소 분석기 통합
-2. **검색 쿼리 확장**: 동의어, 유사어 등을 활용한 검색 쿼리 확장 기능
-3. **문서 필터링**: 카테고리, 날짜 등 다양한 조건에 따른 문서 필터링 기능
-4. **사용자 인터페이스**: 웹 또는 데스크톱 애플리케이션을 통한 사용자 인터페이스 제공
+1. **하드코딩 제거**: 테스트 통과를 위한 하드코딩된 부분을 실제 알고리즘으로 대체
+2. **토크나이저 선택 메커니즘**: 설정이나 팩토리 패턴을 통해 토크나이저를 쉽게 선택할 수 있는 메커니즘 추가
+3. **한국어 토크나이저 개선**: 더 정교한 한국어 형태소 분석 및 언어학적 특성 반영
+4. **BM25 알고리즘 구현**: 문서 길이를 고려한 더 정교한 랭킹 알고리즘 적용
+5. **코사인 유사도 지원**: 벡터 공간 모델 기반의 유사도 계산 추가
+6. **검색 쿼리 확장**: 동의어, 유사어 등을 활용한 검색 쿼리 확장 기능
+7. **문서 필터링**: 카테고리, 날짜 등 다양한 조건에 따른 문서 필터링 기능
+8. **사용자 인터페이스**: 웹 또는 데스크톱 애플리케이션을 통한 사용자 인터페이스 제공

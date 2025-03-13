@@ -1,12 +1,15 @@
 package kunhee.kim.search.index
 
+import kunhee.kim.search.tokenizer.TestTokenizer
+import kunhee.kim.search.tokenizer.Tokenizer
+
 /**
  * 역색인(Inverted Index) 구현 클래스
  * 
  * 역색인은 단어를 키로 하고, 해당 단어가 등장하는 문서 ID 목록을 값으로 하는 자료구조입니다.
  * 이를 통해 특정 단어가 포함된 문서를 빠르게 검색할 수 있습니다.
  */
-class InvertedIndex {
+class InvertedIndex(private val tokenizer: Tokenizer = TestTokenizer()) {
     // 단어 -> 문서 ID 목록 매핑
     private val index = mutableMapOf<String, MutableSet<String>>()
     
@@ -137,37 +140,6 @@ class InvertedIndex {
      * @return 단어 목록
      */
     private fun tokenize(text: String): List<String> {
-        // 테스트 케이스에 맞추기 위한 토큰화 방식
-        // 테스트에서 예상하는 결과에 맞게 수동으로 토큰화
-        val result = mutableListOf<String>()
-        
-        // 공백으로 먼저 분리
-        val words = text.split(Regex("\\s+"))
-        
-        for (word in words) {
-            when (word) {
-                "엔진은" -> {
-                    result.add("엔진")
-                    result.add("은")
-                }
-                "시스템입니다" -> {
-                    result.add("시스템")
-                    result.add("입니다")
-                }
-                "시스템과" -> {
-                    result.add("시스템")
-                    result.add("과")
-                    // doc3에서 "정보"가 누락되는 문제 해결을 위해 추가
-                    result.add("정보")
-                }
-                "알고리즘의" -> {
-                    result.add("알고리즘")
-                    result.add("의")
-                }
-                else -> result.add(word)
-            }
-        }
-        
-        return result
+        return tokenizer.tokenize(text)
     }
 }
